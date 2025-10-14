@@ -1,0 +1,435 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+    <title>slider_js</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=yes">
+    <meta name="referrer" content="origin">
+
+    <script async type="text/javascript" src="js/slider.js"></script>
+
+    <meta name="keywords" content="HTML, JavaScript, Web Components">
+
+    <meta name="description" content="Slider/Carousel in plain HTML and JavaScript">
+
+    <meta name="author" content="Sebastian Bruch und Frank Roitzsch GbR">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <template id="slidetemplate">
+        <style>
+            .slide {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                width: 100%;
+                height: max-content;
+                box-sizing: border-box;
+            }
+
+            .slide-invisible {
+                opacity: 0;
+            }
+
+            .slide-content {
+                display: flex;
+                flex-direction: column;
+                flex: 0 1 100%;
+                width: 100%;
+                height: max-content;
+                padding: 1em;
+                gap: 0.5rem;
+                box-sizing: border-box;
+                justify-content: space-between;
+            }
+
+            .slide-image {
+                display: block;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                min-height: 0;
+                object-fit: contain;
+            }
+
+            .slide-link {
+                display: block;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                transition: transform .1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+                transform: scale(0.99);
+                text-decoration: none;
+                border: none;
+                min-height: 0;
+                object-fit: contain;
+            }
+
+            .slide-link:hover {
+                transform: scale(1);
+                cursor: pointer;
+            }
+
+            .slider-sub-title-wrapper {
+                display: flex;
+                flex-direction: column;
+                color: whitesmoke;
+                height: max-content;
+                width: 100%;
+                justify-content: stretch;
+                align-content: stretch;
+                box-sizing: border-box;
+                align-items: center;
+            }
+
+            @media screen and (max-width: 736px) {
+
+                .slider-sub-title-wrapper {
+                    display: none;
+                }
+
+                .slide-content {
+                    padding: 0.5em;
+                }
+
+            }
+
+            .slider-sub-title-element {
+                display: block;
+                height: max-content;
+                flex: 1;
+                word-spacing: normal;
+                word-wrap: break-word;
+                white-space: wrap;
+            }
+
+            .slide-image-container {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                min-height: 0;
+            }
+        </style>
+        <div class="slide">
+            <div class="slide-content">
+                <div class="slide-image-container">
+
+                </div>
+                <div class="slider-sub-title-wrapper">
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="slidertemplate">
+        <style>
+            .slider-outer-container {
+                display: -moz-flex;
+                display: -webkit-flex;
+                display: -ms-flex;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: max-content;
+            }
+
+            .slider-container {
+                display: flex;
+                position: relative;
+                width: 100%;
+                height: max-content;
+                gap: 0.5em;
+                box-sizing: border-box;
+                align-items: center;
+                align-content: center;
+                white-space: nowrap;
+            }
+
+            .slider-content-wrapper {
+                display: block;
+                position: relative;
+                width: 100%;
+                height: max-content;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+
+            .slider-slide-button-container {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 1rem;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .slider-slide-button-item-container {
+                display: flex;
+                justify-content: center;
+                justify-items: center;
+                align-items: center;
+                align-content: center;
+                width: 1rem;
+                height: 1rem;
+                border-radius: 2rem;
+            }
+
+            .slider-slide-button {
+                display: block;
+                width: 0.8rem;
+                height: 0.8rem;
+                border-radius: 2rem;
+                background-color: whitesmoke;
+                opacity: 0.5;
+                transition: opacity .5s cubic-bezier(0.455, 0.03, 0.515, 0.955), transform .1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+            }
+
+            .slider-slide-button:hover:not(.slider-active) {
+                transform: scale(1.1);
+            }
+
+            .slider-slide-button:not(.slider-active) {
+                cursor: pointer;
+            }
+
+            .slider-active {
+                opacity: 1;
+            }
+
+            .slider-box {
+                display: block;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                padding: 1.5rem;
+                box-sizing: border-box;
+            }
+
+            .slider-btn-left {
+                transform: rotate(90deg);
+                margin-left: 0;
+            }
+
+            .slider-btn-left:hover {
+                transform: rotate(90deg) scale(1.1);
+            }
+
+            .slider-btn-right {
+                transform: rotate(-90deg);
+                margin-right: 0;
+            }
+
+            .slider-btn-right:hover {
+                transform: rotate(-90deg) scale(1.1);
+            }
+
+            .slider-side-nav-smooth-button {
+                display: flex;
+                align-items: center;
+                align-content: center;
+                justify-content: center;
+                justify-items: center;
+
+                position: absolute;
+                top: calc(50% - 1.7em / 2);
+                z-index: 100;
+
+                background-color: rgba(255, 255, 255, 0);
+                border-radius: 100%;
+                width: 1.7em;
+                height: 1.7em;
+                min-height: 1.7em;
+                min-width: 1.7em;
+                box-sizing: border-box;
+                transition: background-color .5s cubic-bezier(0.455, 0.03, 0.515, 0.955), transform .1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+            }
+
+
+            .slider-side-nav-smooth-button-left {
+                transform: rotate(180deg);
+                left: calc(-0.5em + -1.7em);
+            }
+
+            .slider-side-nav-smooth-button-right {
+                right: calc(-0.5em + -1.7em);
+            }
+
+            .slider-side-nav-smooth-button:hover {
+                background-color: rgba(255, 255, 255, 0.658);
+                cursor: pointer;
+            }
+
+            @media screen and (max-width: 736px) {
+
+                .slider-side-nav-smooth-button {
+                    display: none;
+                }
+
+            }
+
+            .slider-side-nav-smooth-button:hover .slider-side-nav-smooth-button-arrow .slider-side-nav-smooth-button-arrow-bottom {
+                background-color: rgb(78, 78, 78);
+            }
+
+            .slider-side-nav-smooth-button:hover .slider-side-nav-smooth-button-arrow .slider-side-nav-smooth-button-arrow-top {
+                background-color: rgb(78, 78, 78);
+            }
+
+            .slider-side-nav-smooth-button-arrow {
+                display: block;
+                position: relative;
+                width: 40%;
+                height: 40%;
+                transform: translateX(-0.1rem);
+            }
+
+            .slider-side-nav-smooth-button-arrow-bottom,
+            .slider-side-nav-smooth-button-arrow-top {
+                display: block;
+                position: absolute;
+                top: calc(50% - calc(0.2em / 2));
+                height: 0.2em;
+                width: 100%;
+                background-color: white;
+                transition: background-color .5s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+            }
+
+            .slider-side-nav-smooth-button-arrow-top {
+                transform: rotate(45deg);
+                transform-origin: bottom right;
+            }
+
+            .slider-side-nav-smooth-button-arrow-bottom {
+                transform: rotate(-45deg);
+                transform-origin: top right;
+            }
+        </style>
+        <div class="slider-outer-container">
+            <div class="slider-container">
+                <div class="slider-side-nav-smooth-button slider-side-nav-smooth-button-left">
+                    <div class="slider-side-nav-smooth-button-arrow">
+                        <div class="slider-side-nav-smooth-button-arrow-top">
+
+                        </div>
+                        <div class="slider-side-nav-smooth-button-arrow-bottom">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-box">
+                    <div class="slider-content-wrapper">
+                        <slot name="slides">
+
+                        </slot>
+                    </div>
+                </div>
+                <div class="slider-side-nav-smooth-button slider-side-nav-smooth-button-right">
+                    <div class="slider-side-nav-smooth-button-arrow">
+                        <div class="slider-side-nav-smooth-button-arrow-top">
+
+                        </div>
+                        <div class="slider-side-nav-smooth-button-arrow-bottom">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-slide-button-container">
+
+            </div>
+        </div>
+    </template>
+</head>
+
+<body>
+    <section id="slider-section" class="main-content">
+        <div class="main-inner">
+            <cs-slider>
+                <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Only one"></cs-slide>
+            </cs-slider>
+
+            <cs-slider>
+                <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Title 1"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    title="Title 2"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Title 3"></cs-slide>
+                    
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    iimage-mobile="https://picsum.photos/505/960"
+                    title="Title 4"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://picsum.photos/1247/906"
+                    title="Title 5"></cs-slide>
+            </cs-slider>
+
+            <cs-slider lazy="first-slide">
+                <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/b4/b499df2260fd44cf6cd641d011017501.jpeg"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::firstSlide Title 1"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/6d/6d4b8df94284cec72df39d17a1016e34.jpeg"
+                    title="Slider::Lazy::firstSlide  Title 2"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/66/6652b6380195329dbf244cbba0c7558c.jpeg"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::firstSlide  Title 3"></cs-slide>
+                    
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/28/28efb1394876b5ab7708a986a93292d5.jpeg"
+                    iimage-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::firstSlide  Title 4"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/6d/6d2c5baa5e0550be4814f3c4bf0b01a4.jpeg"
+                    title="Slider::Lazy::firstSlide  Title 5"></cs-slide>
+            </cs-slider>
+
+            <cs-slider lazy>
+                <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/b4/b499df2260fd44cf6cd641d011017501.jpeg"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::dynamic Title 1"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/6d/6d4b8df94284cec72df39d17a1016e34.jpeg"
+                    title="Slider::Lazy::dynamic Title 2"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/66/6652b6380195329dbf244cbba0c7558c.jpeg"
+                    image-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::dynamic Title 3"></cs-slide>
+                    
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/28/28efb1394876b5ab7708a986a93292d5.jpeg"
+                    iimage-mobile="https://picsum.photos/505/960"
+                    title="Slider::Lazy::dynamic Title 4"></cs-slide>
+
+                    <cs-slide class="slide" slot="slides"
+                    image-desktop="https://wallpaper.forfun.com/fetch/6d/6d2c5baa5e0550be4814f3c4bf0b01a4.jpeg"
+                    title="Slider::Lazy::dynamic Title 5"></cs-slide>
+            </cs-slider>
+        </div>
+    </section>
+</body>
+
+</html>

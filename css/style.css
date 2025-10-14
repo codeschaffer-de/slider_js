@@ -1,0 +1,58 @@
+/*
+body ...
+*/
+
+html, body {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(78, 78, 78);
+    margin: 0;
+    flex: 0 1 100%;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.main-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6em;
+    width: 60em;
+    margin: 0 auto;
+    padding-bottom: 3em;
+}
+
+@media screen and (max-width: 1280px) {
+
+	.main-inner {
+		width: 90%;
+	}
+
+}
+
+@media screen and (max-width: 980px) {
+
+	.main-inner {
+		width: 100%;
+	}
+
+}
+
+.slide {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
