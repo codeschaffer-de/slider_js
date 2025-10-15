@@ -462,7 +462,6 @@ class Slider extends HTMLElement {
         this.setIndex(this.currentIndex);
     }
 
-    // Warum wird das Dingen mehrfach ausgeführt???
     slidesReload(event) {
         if (this.imageSrcs.has(event.detail.name)) {
             return;
